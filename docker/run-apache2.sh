@@ -1,3 +1,4 @@
+#!/bin/sh -e
 # Set any missing env variables used to configure deck
 
 _DECK_HOST=$DECK_HOST
@@ -85,4 +86,8 @@ then
 	cp /opt/spinnaker/config/plugin-manifest.json /opt/deck/html/plugin-manifest.json
 fi
 
-apache2ctl -D FOREGROUND 
+trap 'exec /usr/sbin/apache2ctl graceful-stop' TERM
+trap 'exec /usr/sbin/apache2ctl graceful-stop' INT
+apache2ctl -D FOREGROUND &
+wait "$!"
+
